@@ -3,6 +3,7 @@ from distutils.extension import Extension
 import glob
 import platform
 import os
+import time
 
 #Does gcc compile with this header and library?
 def compile_test(header, library):
@@ -44,5 +45,6 @@ ext_modules = [
 
 setup(
     name='kenlm',
-    ext_modules=ext_modules
+    ext_modules=ext_modules,
+    version='0.1.{}'.format(time.strftime("%Y%m%d"))
 )
