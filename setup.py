@@ -44,7 +44,10 @@ ext_modules = [
 ]
 
 setup(
-    name='kenlm',
     ext_modules=ext_modules,
+    name='pypi-kenlm',
+    author='Victor Chahuneau',
+    author_email='victor@chahuneau.fr',
+    url='https://github.com/sih4sing5hong5/kenlm',
     version='0.1.{}'.format(time.strftime("%Y%m%d"))
 )
