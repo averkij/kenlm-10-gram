@@ -3,7 +3,7 @@ from distutils.extension import Extension
 import glob
 import platform
 import os
-import time
+from version import kenlm_version
 
 #Does gcc compile with this header and library?
 def compile_test(header, library):
@@ -49,5 +49,5 @@ setup(
     author='Victor Chahuneau',
     author_email='victor@chahuneau.fr',
     url='https://github.com/sih4sing5hong5/kenlm',
-    version='0.1.{}'.format(time.strftime("%Y%m%d"))
+    version=kenlm_version
 )

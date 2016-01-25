@@ -30,3 +30,4 @@ windows/*.user
 windows/*.sdf
 windows/*.opensdf
 windows/*.suo
+/version.py
