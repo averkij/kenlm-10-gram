@@ -22,7 +22,7 @@ branches:
   only:
   - pypi
 script:
-- echo "import time ; print('kenlm_version = \'0.1.{}\''.format(time.strftime('%Y%m%d')))" | python > version.py 
+- echo "import time ; print('kenlm_version = \'0.1.{}\''.format(time.strftime('%Y%m%d')))" | python | tee version.py 
 - python setup.py sdist
 - pip install dist/pypi-kenlm*
 deploy:
