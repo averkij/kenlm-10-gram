@@ -33,3 +33,4 @@ deploy:
   on:
     repo: sih4sing5hong5/kenlm
     branch: pypi
+  skip_cleanup: true

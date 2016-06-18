@@ -30,6 +30,6 @@ windows/*.user
 windows/*.sdf
 windows/*.opensdf
 windows/*.suo
-/version.py
-MANIFEST
-__pycache__/
+/version.py*
+/MANIFEST
+/__pycache__/
