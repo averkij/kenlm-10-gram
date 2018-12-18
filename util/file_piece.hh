@@ -6,6 +6,7 @@
 #include "util/file.hh"
 #include "util/mmap.hh"
 #include "util/read_compressed.hh"
+#include "util/spaces.hh"
 #include "util/string_piece.hh"
 
 #include <cstddef>
@@ -22,7 +23,40 @@ class ParseNumberException : public Exception {
     ~ParseNumberException() throw() {}
 };
 
-extern const bool kSpaces[256];
+class FilePiece;
+
+// Input Iterator over lines.  This allows
+//   for (StringPiece l : FilePiece("file"))
+// in C++11.
+// NB: not multipass.
+class LineIterator {
+  public:
+    LineIterator() : backing_(NULL) {}
+
+    explicit LineIterator(FilePiece &f, char delim = '\n') : backing_(&f), delim_(delim) {
+      ++*this;
+    }
+
+    LineIterator &operator++();
+
+    bool operator==(const LineIterator &other) const {
+      return backing_ == other.backing_;
+    }
+
+    bool operator!=(const LineIterator &other) const {
+      return backing_ != other.backing_;
+    }
+
+    operator bool() const { return backing_ != NULL; }
+
+    StringPiece operator*() const { return line_; }
+    const StringPiece *operator->() const { return &line_; }
+
+  private:
+    FilePiece *backing_;
+    StringPiece line_;
+    char delim_;
+};
 
 // Memory backing the returned StringPiece may vanish on the next call.
 class FilePiece {
@@ -39,7 +73,13 @@ class FilePiece {
      */
     explicit FilePiece(std::istream &stream, const char *name = NULL, std::size_t min_buffer = 1048576);
 
-    ~FilePiece();
+    LineIterator begin() {
+      return LineIterator(*this);
+    }
+
+    LineIterator end() {
+      return LineIterator();
+    }
 
     char get() {
       if (position_ == position_end_) {
@@ -63,7 +103,7 @@ class FilePiece {
         if (position_ == position_end_) {
           try {
             Shift();
-          } catch (const util::EndOfFileException &e) { return false; }
+          } catch (const util::EndOfFileException &) { return false; }
           // And break out at end of file.
           if (position_ == position_end_) return false;
         }
@@ -125,6 +165,9 @@ class FilePiece {
 
     const std::string &FileName() const { return file_name_; }
 
+    // Force a progress update.
+    void UpdateProgress();
+
   private:
     void InitializeNoRead(const char *name, std::size_t min_buffer);
     // Calls InitializeNoRead, so don't call both.
@@ -152,7 +195,6 @@ class FilePiece {
 
     scoped_fd file_;
     const uint64_t total_size_;
-    const uint64_t page_;
 
     std::size_t default_map_size_;
     uint64_t mapped_offset_;

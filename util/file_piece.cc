@@ -11,6 +11,7 @@
 #include <unistd.h>
 #endif
 
+#include <algorithm>
 #include <cassert>
 #include <cerrno>
 #include <cmath>
@@ -23,17 +24,26 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 
+#if defined(_WIN32) || defined(_WIN64)
+#include <math.h>
+#endif
+
 namespace util {
+
+namespace { const uint64_t kPageSize = SizePage(); }
 
 ParseNumberException::ParseNumberException(StringPiece value) throw() {
   *this << "Could not parse \"" << value << "\" into a ";
 }
 
-// Sigh this is the only way I could come up with to do a _const_ bool.  It has ' ', '\f', '\n', '\r', '\t', and '\v' (same as isspace on C locale).
-const bool kSpaces[256] = {0,0,0,0,0,0,0,0,0,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+LineIterator &LineIterator::operator++() {
+  if (!backing_->ReadLineOrEOF(line_, delim_))
+    backing_ = NULL;
+  return *this;
+}
 
 FilePiece::FilePiece(const char *name, std::ostream *show_progress, std::size_t min_buffer) :
-  file_(OpenReadOrThrow(name)), total_size_(SizeFile(file_.get())), page_(SizePage()),
+  file_(OpenReadOrThrow(name)), total_size_(SizeFile(file_.get())),
   progress_(total_size_, total_size_ == kBadSize ? NULL : show_progress, std::string("Reading ") + name) {
   Initialize(name, show_progress, min_buffer);
 }
@@ -46,13 +56,13 @@ std::string NamePossiblyFind(int fd, const char *name) {
 } // namespace
 
 FilePiece::FilePiece(int fd, const char *name, std::ostream *show_progress, std::size_t min_buffer) :
-  file_(fd), total_size_(SizeFile(file_.get())), page_(SizePage()),
+  file_(fd), total_size_(SizeFile(file_.get())),
   progress_(total_size_, total_size_ == kBadSize ? NULL : show_progress, std::string("Reading ") + NamePossiblyFind(fd, name)) {
   Initialize(NamePossiblyFind(fd, name).c_str(), show_progress, min_buffer);
 }
 
 FilePiece::FilePiece(std::istream &stream, const char *name, std::size_t min_buffer) :
-  total_size_(kBadSize), page_(SizePage()) {
+  total_size_(kBadSize) {
   InitializeNoRead("istream", min_buffer);
 
   fallback_to_read_ = true;
@@ -63,22 +73,19 @@ FilePiece::FilePiece(std::istream &stream, const char *name, std::size_t min_buf
   fell_back_.Reset(stream);
 }
 
-FilePiece::~FilePiece() {}
-
 StringPiece FilePiece::ReadLine(char delim, bool strip_cr) {
   std::size_t skip = 0;
   while (true) {
-    for (const char *i = position_ + skip; i < position_end_; ++i) {
-      if (*i == delim) {
-        // End of line.
-        // Take 1 byte off the end if it's an unwanted carriage return.
-        const std::size_t subtract_cr = (
-            (strip_cr && i > position_ && *(i - 1) == '\r') ?
-            1 : 0);
-        StringPiece ret(position_, i - position_ - subtract_cr);
-        position_ = i + 1;
-        return ret;
-      }
+    const char *i = std::find(position_ + skip, position_end_, delim);
+    if (UTIL_LIKELY(i != position_end_)) {
+      // End of line.
+      // Take 1 byte off the end if it's an unwanted carriage return.
+      const std::size_t subtract_cr = (
+          (strip_cr && i > position_ && *(i - 1) == '\r') ?
+          1 : 0);
+      StringPiece ret(position_, i - position_ - subtract_cr);
+      position_ = i + 1;
+      return ret;
     }
     if (at_end_) {
       if (position_ == position_end_) {
@@ -115,7 +122,7 @@ unsigned long int FilePiece::ReadULong() {
 void FilePiece::InitializeNoRead(const char *name, std::size_t min_buffer) {
   file_name_ = name;
 
-  default_map_size_ = page_ * std::max<std::size_t>((min_buffer / page_ + 1), 2);
+  default_map_size_ = kPageSize * std::max<std::size_t>((min_buffer / kPageSize + 1), 2);
   position_ = NULL;
   position_end_ = NULL;
   mapped_offset_ = 0;
@@ -124,15 +131,24 @@ void FilePiece::InitializeNoRead(const char *name, std::size_t min_buffer) {
 
 void FilePiece::Initialize(const char *name, std::ostream *show_progress, std::size_t min_buffer) {
   InitializeNoRead(name, min_buffer);
+  uint64_t current_offset;
+  bool valid_current_offset;
+  try {
+    current_offset = AdvanceOrThrow(file_.get(), 0);
+    valid_current_offset = true;
+  } catch (const FDException &) {
+    current_offset = 0;
+    valid_current_offset = false;
+  }
 
-  if (total_size_ == kBadSize) {
-    // So the assertion passes.
-    fallback_to_read_ = false;
+  // So the assertion in TransitionToRead passes
+  fallback_to_read_ = false;
+  if (total_size_ == kBadSize || !valid_current_offset) {
     if (show_progress)
       *show_progress << "File " << name << " isn't normal.  Using slower read() instead of mmap().  No progress bar." << std::endl;
     TransitionToRead();
   } else {
-    fallback_to_read_ = false;
+    mapped_offset_ = current_offset;
   }
   Shift();
   // gzip detect.
@@ -161,16 +177,25 @@ StringPiece FirstToken(StringPiece str) {
   return StringPiece(str.data(), i - str.data());
 }
 
+// std::isnan is technically C++11 not C++98.  But in practice this is a problem for visual studio.
+template <class T> inline int CrossPlatformIsNaN(T value) {
+#if defined(_WIN32) || defined(_WIN64)
+  return isnan(value);
+#else
+  return std::isnan(value);
+#endif
+}
+
 const char *ParseNumber(StringPiece str, float &out) {
   int count;
   out = kConverter.StringToFloat(str.data(), str.size(), &count);
-  UTIL_THROW_IF_ARG(std::isnan(out) && str != "NaN" && str != "nan", ParseNumberException, (FirstToken(str)), "float");
+  UTIL_THROW_IF_ARG(CrossPlatformIsNaN(out) && str != "NaN" && str != "nan", ParseNumberException, (FirstToken(str)), "float");
   return str.data() + count;
 }
 const char *ParseNumber(StringPiece str, double &out) {
   int count;
   out = kConverter.StringToDouble(str.data(), str.size(), &count);
-  UTIL_THROW_IF_ARG(std::isnan(out) && str != "NaN" && str != "nan", ParseNumberException, (FirstToken(str)), "double");
+  UTIL_THROW_IF_ARG(CrossPlatformIsNaN(out) && str != "NaN" && str != "nan", ParseNumberException, (FirstToken(str)), "double");
   return str.data() + count;
 }
 const char *ParseNumber(StringPiece str, long int &out) {
@@ -240,9 +265,14 @@ void FilePiece::Shift() {
   }
 }
 
+void FilePiece::UpdateProgress() {
+  if (!fallback_to_read_)
+    progress_.Set(position_ - data_.begin() + mapped_offset_);
+}
+
 void FilePiece::MMapShift(uint64_t desired_begin) {
   // Use mmap.
-  uint64_t ignore = desired_begin % page_;
+  uint64_t ignore = desired_begin % kPageSize;
   // Duplicate request for Shift means give more data.
   if (position_ == data_.begin() + ignore && position_) {
     default_map_size_ *= 2;

@@ -1,5 +1,4 @@
-from distutils.core import setup
-from distutils.extension import Extension
+from setuptools import setup, Extension
 import glob
 import platform
 import os
@@ -15,12 +14,19 @@ def compile_test(header, library):
 FILES = glob.glob('util/*.cc') + glob.glob('lm/*.cc') + glob.glob('util/double-conversion/*.cc')
 FILES = [fn for fn in FILES if not (fn.endswith('main.cc') or fn.endswith('test.cc'))]
 
-LIBS = ['stdc++']
-if platform.system() != 'Darwin':
-    LIBS.append('rt')
+if platform.system() == 'Linux':
+    LIBS = ['stdc++', 'rt']
+elif platform.system() == 'Darwin':
+    LIBS = ['c++']
+else:
+    LIBS = []
 
+#We don't need -std=c++11 but python seems to be compiled with it now.  https://github.com/kpu/kenlm/issues/86
+ARGS = ['-O3', '-DNDEBUG', '-DKENLM_MAX_ORDER=6', '-std=c++11']
 
-ARGS = ['-O3', '-DNDEBUG', '-DKENLM_MAX_ORDER=6']
+#Attempted fix to https://github.com/kpu/kenlm/issues/186 and https://github.com/kpu/kenlm/issues/197
+if platform.system() == 'Darwin':
+    ARGS.append("-stdlib=libc++ -mmacosx-version-min=10.7")
 
 if compile_test('zlib.h', 'z'):
     ARGS.append('-DHAVE_ZLIB')
@@ -44,10 +50,11 @@ ext_modules = [
 ]
 
 setup(
-    ext_modules=ext_modules,
     name='pypi-kenlm',
+    ext_modules=ext_modules,
+    include_package_data=True,
     author='Victor Chahuneau',
     author_email='victor@chahuneau.fr',
     url='https://github.com/sih4sing5hong5/kenlm',
-    version=kenlm_version
+    version=kenlm_version,
 )

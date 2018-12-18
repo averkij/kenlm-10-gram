@@ -23,8 +23,10 @@ class scoped_mmap {
 
     void *get() const { return data_; }
 
-    const uint8_t *begin() const { return reinterpret_cast<uint8_t*>(data_); }
-    const uint8_t *end() const { return reinterpret_cast<uint8_t*>(data_) + size_; }
+    const char *begin() const { return reinterpret_cast<char*>(data_); }
+    char *begin() { return reinterpret_cast<char*>(data_); }
+    const char *end() const { return reinterpret_cast<char*>(data_) + size_; }
+    char *end() { return reinterpret_cast<char*>(data_) + size_; }
     std::size_t size() const { return size_; }
 
     void reset(void *data, std::size_t size) {
@@ -52,9 +54,8 @@ class scoped_mmap {
     scoped_mmap &operator=(const scoped_mmap &);
 };
 
-/* For when the memory might come from mmap, new char[], or malloc.  Uses NULL
- * and 0 for blanks even though mmap signals errors with (void*)-1).  The reset
- * function checks that blank for mmap.
+/* For when the memory might come from mmap or malloc.  Uses NULL and 0 for
+ * blanks even though mmap signals errors with (void*)-1).
  */
 class scoped_memory {
   public:
@@ -62,7 +63,7 @@ class scoped_memory {
       MMAP_ROUND_UP_ALLOCATED, // The size was rounded up to a multiple of page size.  Do the same before munmap.
       MMAP_ALLOCATED, // munmap
       MALLOC_ALLOCATED, // free
-      NONE_ALLOCATED // nothing here!
+      NONE_ALLOCATED // nothing to free (though there can be something here if it's owned by somebody else).
     } Alloc;
 
     scoped_memory(void *data, std::size_t size, Alloc source)
@@ -73,11 +74,21 @@ class scoped_memory {
     // Calls HugeMalloc
     scoped_memory(std::size_t to, bool zero_new);
 
+#if __cplusplus >= 201103L
+    scoped_memory(scoped_memory &&from) noexcept
+      : data_(from.data_), size_(from.size_), source_(from.source_) {
+      from.steal();
+    }
+#endif
+
     ~scoped_memory() { reset(); }
 
     void *get() const { return data_; }
+
     const char *begin() const { return reinterpret_cast<char*>(data_); }
+    char *begin() { return reinterpret_cast<char*>(data_); }
     const char *end() const { return reinterpret_cast<char*>(data_) + size_; }
+    char *end() { return reinterpret_cast<char*>(data_) + size_; }
     std::size_t size() const { return size_; }
 
     Alloc source() const { return source_; }
@@ -128,7 +139,7 @@ void HugeMalloc(std::size_t size, bool zeroed, scoped_memory &to);
 // this.
 void HugeRealloc(std::size_t size, bool new_zeroed, scoped_memory &mem);
 
-typedef enum {
+enum LoadMethod {
   // mmap with no prepopulate
   LAZY,
   // On linux, pass MAP_POPULATE to mmap.
@@ -139,7 +150,7 @@ typedef enum {
   READ,
   // malloc and read in parallel (recommended for Lustre)
   PARALLEL_READ,
-} LoadMethod;
+};
 
 void MapRead(LoadMethod method, int fd, uint64_t offset, std::size_t size, scoped_memory &out);
 

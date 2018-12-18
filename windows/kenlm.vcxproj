@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
       <Configuration>Debug</Configuration>
@@ -28,27 +28,23 @@
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <CharacterSet>Unicode</CharacterSet>
-    <PlatformToolset>v120</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <CharacterSet>Unicode</CharacterSet>
-    <PlatformToolset>v120</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
-    <PlatformToolset>v120</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
-    <PlatformToolset>v120</PlatformToolset>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -67,23 +63,23 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <TargetName>$(ProjectName)</TargetName>
-    <OutDir>$(SolutionDir)$(Platform)\$(ProjectName)\$(Configuration)\</OutDir>
-    <IntDir>$(SolutionDir)$(Platform)\$(ProjectName)\$(Configuration)\</IntDir>
+    <TargetName>$(ProjectName)_x64</TargetName>
+    <OutDir>.\</OutDir>
+    <IncludePath>$(VCInstallDir)include;$(VCInstallDir)atlmfc\include;$(WindowsSdkDir)include;$(FrameworkSDKDir)\include;E:\boost_1_60_0;</IncludePath>
+    <LibraryPath>$(VCInstallDir)lib\amd64;$(VCInstallDir)atlmfc\lib\amd64;$(WindowsSdkDir)lib\x64;E:\boost_1_60_0\stage\lib;E:\zlib\lib;</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <TargetName>$(ProjectName)</TargetName>
-    <OutDir>$(SolutionDir)$(Platform)\$(ProjectName)\$(Configuration)\</OutDir>
-    <IntDir>$(SolutionDir)$(Platform)\$(ProjectName)\$(Configuration)\</IntDir>
+    <TargetName>$(ProjectName)_x64d</TargetName>
+    <OutDir>.\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <OutDir>$(SolutionDir)$(Platform)\$(ProjectName)\$(Configuration)\</OutDir>
-    <TargetName>$(ProjectName)</TargetName>
-    <IntDir>$(SolutionDir)$(Platform)\$(ProjectName)\$(Configuration)\</IntDir>
+    <OutDir>.\</OutDir>
+    <TargetName>$(ProjectName)d</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <OutDir>$(SolutionDir)$(Platform)\$(ProjectName)\$(Configuration)\</OutDir>
-    <IntDir>$(SolutionDir)$(Platform)\$(ProjectName)\$(Configuration)\</IntDir>
+    <OutDir>.</OutDir>
+    <IncludePath>$(VCInstallDir)include;$(VCInstallDir)atlmfc\include;$(WindowsSdkDir)include;$(FrameworkSDKDir)\include;E:\boost_1_60_0;</IncludePath>
+    <LibraryPath>$(VCInstallDir)lib;$(VCInstallDir)atlmfc\lib;$(WindowsSdkDir)lib;$(FrameworkSDKDir)\lib;E:\boost_1_60_0\libs;E:\zlib\lib;</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -91,10 +87,9 @@
       </PrecompiledHeader>
       <WarningLevel>TurnOffAllWarnings</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>KENLM_MAX_ORDER=6;WIN32;D_SCL_SECURE_NO_WARNINGS_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(ProjectDir)\..;$(BOOSTDIR);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>KENLM_MAX_ORDER=6;WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(ProjectDir)\..;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
-      <AdditionalOptions>-D_SCL_SECURE_NO_WARNINGS %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -108,7 +103,7 @@
       <WarningLevel>TurnOffAllWarnings</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>KENLM_MAX_ORDER=6;WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(ProjectDir)\..;$(BOOSTDIR);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)\..;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
     </ClCompile>
     <Link>
@@ -124,10 +119,9 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>KENLM_MAX_ORDER=6;WIN32;D_SCL_SECURE_NO_WARNINGSNDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(ProjectDir)\..;$(BOOSTDIR);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>KENLM_MAX_ORDER=6;WIN32;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(ProjectDir)\..;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
-      <AdditionalOptions>-D_SCL_SECURE_NO_WARNINGS %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -145,7 +139,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>KENLM_MAX_ORDER=6;WIN32;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(ProjectDir)\..;$(BOOSTDIR);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)\..;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
     </ClCompile>
     <Link>
@@ -167,15 +161,19 @@
     <None Include="..\lm\max_order.hh" />
     <None Include="..\lm\model.hh" />
     <None Include="..\lm\model_type.hh" />
+    <None Include="..\lm\ngram_query.hh" />
+    <None Include="..\lm\partial.hh" />
     <None Include="..\lm\quantize.hh" />
     <None Include="..\lm\read_arpa.hh" />
     <None Include="..\lm\return.hh" />
     <None Include="..\lm\search_hashed.hh" />
     <None Include="..\lm\search_trie.hh" />
-    <None Include="..\lm\test.arpa" />
-    <None Include="..\lm\test_nounk.arpa" />
+    <None Include="..\lm\sizes.hh" />
+    <None Include="..\lm\state.hh" />
     <None Include="..\lm\trie.hh" />
     <None Include="..\lm\trie_sort.hh" />
+    <None Include="..\lm\value_build.hh" />
+    <None Include="..\lm\value.hh" />
     <None Include="..\lm\virtual_interface.hh" />
     <None Include="..\lm\vocab.hh" />
     <None Include="..\lm\weights.hh" />
@@ -183,21 +181,38 @@
     <None Include="..\util\bit_packing.hh" />
     <None Include="..\util\ersatz_progress.hh" />
     <None Include="..\util\exception.hh" />
+    <None Include="..\util\fake_ifstream.hh" />
+    <None Include="..\util\fake_ostream.hh" />
     <None Include="..\util\file.hh" />
     <None Include="..\util\file_piece.hh" />
+    <None Include="..\util\file_stream.hh" />
+    <None Include="..\util\fixed_array.hh" />
+    <None Include="..\util\float_to_string.hh" />
     <None Include="..\util\getopt.hh" />
     <None Include="..\util\have.hh" />
+    <None Include="..\util\integer_to_string.hh" />
     <None Include="..\util\joint_sort.hh" />
-    <None Include="..\util\key_value_packing.hh" />
+    <None Include="..\util\keep_buffer.hh" />
     <None Include="..\util\mmap.hh" />
+    <None Include="..\util\multi_intersection.hh" />
     <None Include="..\util\murmur_hash.hh" />
+    <None Include="..\util\parallel_read.hh" />
+    <None Include="..\util\pcqueue.hh" />
+    <None Include="..\util\pool.hh" />
     <None Include="..\util\probing_hash_table.hh" />
     <None Include="..\util\proxy_iterator.hh" />
+    <None Include="..\util\read_compressed.hh" />
     <None Include="..\util\scoped.hh" />
     <None Include="..\util\sized_iterator.hh" />
     <None Include="..\util\sorted_uniform.hh" />
+    <None Include="..\util\spaces.hh" />
+    <None Include="..\util\string_piece_hash.hh" />
     <None Include="..\util\string_piece.hh" />
+    <None Include="..\util\string_stream.hh" />
+    <None Include="..\util\sum_exp.hh" />
+    <None Include="..\util\thread_pool.hh" />
     <None Include="..\util\tokenize_piece.hh" />
+    <None Include="..\util\usage.hh" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\lm\value_build.cc" />
@@ -209,21 +224,6 @@
     <ClCompile Include="..\util\double-conversion\fast-dtoa.cc" />
     <ClCompile Include="..\util\double-conversion\fixed-dtoa.cc" />
     <ClCompile Include="..\util\double-conversion\strtod.cc" />
-    <ClCompile Include="..\util\float_to_string.cc" />
-    <ClCompile Include="..\util\integer_to_string.cc" />
-    <ClCompile Include="..\util\joint_sort_test.cc" />
-    <ClCompile Include="..\util\parallel_read.cc" />
-    <ClCompile Include="..\util\pool.cc" />
-    <ClCompile Include="..\util\read_compressed.cc" />
-    <ClCompile Include="..\util\scoped.cc" />
-    <ClCompile Include="..\util\stream\chain.cc" />
-    <ClCompile Include="..\util\stream\count_records.cc" />
-    <ClCompile Include="..\util\stream\io.cc" />
-    <ClCompile Include="..\util\stream\line_input.cc" />
-    <ClCompile Include="..\util\stream\multi_progress.cc" />
-    <ClCompile Include="..\util\stream\rewindable_stream.cc" />
-    <ClCompile Include="..\util\string_piece.cc" />
-    <ClCompile Include="..\util\usage.cc" />
     <ClCompile Include="..\lm\bhiksha.cc" />
     <ClCompile Include="..\lm\binary_format.cc" />
     <ClCompile Include="..\lm\config.cc" />
@@ -236,6 +236,7 @@
     <ClCompile Include="..\lm\sizes.cc" />
     <ClCompile Include="..\lm\trie.cc" />
     <ClCompile Include="..\lm\trie_sort.cc" />
+    <ClCompile Include="..\lm\value_build.cc" />
     <ClCompile Include="..\lm\virtual_interface.cc" />
     <ClCompile Include="..\lm\vocab.cc" />
     <ClCompile Include="..\util\bit_packing.cc" />
@@ -243,9 +244,18 @@
     <ClCompile Include="..\util\exception.cc" />
     <ClCompile Include="..\util\file.cc" />
     <ClCompile Include="..\util\file_piece.cc" />
-    <ClCompile Include="..\util\getopt.c" />
+    <ClCompile Include="..\util\float_to_string.cc" />
+    <ClCompile Include="..\util\integer_to_string.cc" />
     <ClCompile Include="..\util\mmap.cc" />
     <ClCompile Include="..\util\murmur_hash.cc" />
+    <ClCompile Include="..\util\parallel_read.cc" />
+    <ClCompile Include="..\util\pool.cc" />
+    <ClCompile Include="..\util\read_compressed.cc" />
+    <ClCompile Include="..\util\scoped.cc" />
+    <ClCompile Include="..\util\spaces.cc" />
+    <ClCompile Include="..\util\string_piece.cc" />
+    <ClCompile Include="..\util\usage.cc" />
+    <ClCompile Include="..\util\getopt.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\util\double-conversion\bignum-dtoa.h" />
@@ -258,32 +268,6 @@
     <ClInclude Include="..\util\double-conversion\ieee.h" />
     <ClInclude Include="..\util\double-conversion\strtod.h" />
     <ClInclude Include="..\util\double-conversion\utils.h" />
-    <ClInclude Include="..\util\file_stream.hh" />
-    <ClInclude Include="..\util\string_stream.hh" />
-    <ClInclude Include="..\util\fake_ostream.hh" />
-    <ClInclude Include="..\util\fixed_array.hh" />
-    <ClInclude Include="..\util\float_to_string.hh" />
-    <ClInclude Include="..\util\integer_to_string.hh" />
-    <ClInclude Include="..\util\multi_intersection.hh" />
-    <ClInclude Include="..\util\parallel_read.hh" />
-    <ClInclude Include="..\util\pcqueue.hh" />
-    <ClInclude Include="..\util\pool.hh" />
-    <ClInclude Include="..\util\read_compressed.hh" />
-    <ClInclude Include="..\util\stream\block.hh" />
-    <ClInclude Include="..\util\stream\chain.hh" />
-    <ClInclude Include="..\util\stream\config.hh" />
-    <ClInclude Include="..\util\stream\count_records.hh" />
-    <ClInclude Include="..\util\stream\io.hh" />
-    <ClInclude Include="..\util\stream\line_input.hh" />
-    <ClInclude Include="..\util\stream\multi_progress.hh" />
-    <ClInclude Include="..\util\stream\multi_stream.hh" />
-    <ClInclude Include="..\util\stream\rewindable_stream.hh" />
-    <ClInclude Include="..\util\stream\sort.hh" />
-    <ClInclude Include="..\util\stream\stream.hh" />
-    <ClInclude Include="..\util\stream\timer.hh" />
-    <ClInclude Include="..\util\string_piece_hash.hh" />
-    <ClInclude Include="..\util\thread_pool.hh" />
-    <ClInclude Include="..\util\usage.hh" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
