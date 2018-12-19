@@ -127,7 +127,7 @@ class Master {
     template <class Compare> void SetupSorts(Sorts<Compare> &sorts, bool exclude_unigrams) {
       sorts.Init(config_.order - exclude_unigrams);
       // Unigrams don't get sorted because their order is always the same.
-      if (exclude_unigrams) chains_[0] >> unigrams_.Sink();
+      if (exclude_unigrams) chains_[0] >> unigrams_.Sink() >> util::stream::kRecycle;
       for (std::size_t i = exclude_unigrams; i < config_.order; ++i) {
         sorts.push_back(chains_[i], config_.sort, Compare(i + 1));
       }
@@ -227,7 +227,7 @@ util::stream::Sort<SuffixOrder, CombineCounts> *CountText(int text_file /* input
   type_count = config.vocab_estimate;
   util::FilePiece text(text_file, NULL, &std::cerr);
   text_file_name = text.FileName();
-  CorpusCount counter(text, vocab_file, token_count, type_count, prune_words, config.prune_vocab_file, chain.BlockSize() / chain.EntrySize(), config.disallowed_symbol_action);
+  CorpusCount counter(text, vocab_file, true, token_count, type_count, prune_words, config.prune_vocab_file, chain.BlockSize() / chain.EntrySize(), config.disallowed_symbol_action);
   chain >> boost::ref(counter);
 
   util::scoped_ptr<util::stream::Sort<SuffixOrder, CombineCounts> > sorter(new util::stream::Sort<SuffixOrder, CombineCounts>(chain, config.sort, SuffixOrder(config.order), CombineCounts()));
@@ -255,7 +255,7 @@ void InitialProbabilities(const std::vector<uint64_t> &counts, const std::vector
   gammas.Init(config.order - 1);
   for (std::size_t i = 1; i < config.order; ++i) {
     gammas.push_back(util::MakeTemp(config.TempPrefix()));
-    gamma_chains[i] >> gammas[i - 1].Sink();
+    gamma_chains[i] >> gammas[i - 1].Sink() >> util::stream::kRecycle;
   }
   // Has to be done here due to gamma_chains scope.
   master.SetupSorts(primary, true);

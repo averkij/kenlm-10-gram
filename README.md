@@ -7,7 +7,13 @@ I do development in master on https://github.com/kpu/kenlm/.  Normally, it works
 The website http://kheafield.com/code/kenlm/ has more documentation.  If you're a decoder developer, please download the latest version from there instead of copying from another decoder.  
 
 ## Compiling
-See BUILDING. 
+Use cmake, see [BUILDING](BUILDING) for more detail.
+```bash
+mkdir -p build
+cd build
+cmake ..
+make -j 4
+```
 
 ## Compiling with your own build system
 If you want to compile with your own build system (Makefile etc) or to use as a library, there are a number of macros you can set on the g++ command line or in util/have.hh .  
@@ -43,6 +49,8 @@ and see http://kheafield.com/code/kenlm/filter/ for more documentation.
 
 Two data structures are supported: probing and trie.  Probing is a probing hash table with keys that are 64-bit hashes of n-grams and floats as values.  Trie is a fairly standard trie but with bit-level packing so it uses the minimum number of bits to store word indices and pointers.  The trie node entries are sorted by word index.  Probing is the fastest and uses the most memory.  Trie uses the least memory and a bit slower.  
 
+As is the custom in language modeling, all probabilities are log base 10.
+
 With trie, resident memory is 58% of IRST's smallest version and 21% of SRI's compact version.  Simultaneously, trie CPU's use is 81% of IRST's fastest version and 84% of SRI's fast version.  KenLM's probing hash table implementation goes even faster at the expense of using more memory.  See http://kheafield.com/code/kenlm/benchmark/.  
 
 Binary format via mmap is supported.  Run `./build_binary` to make one then pass the binary file name to the appropriate Model constructor.   
@@ -59,7 +67,7 @@ Hideo Okuma and Tomoyuki Yoshimura from NICT contributed ports to ARM and MinGW.
 ## Decoder developers
 - I recommend copying the code and distributing it with your decoder.  However, please send improvements upstream.  
 
-- Omit the lm/filter directory if you do not want the language model filter.  Only that and tests depend on Boost.  
+- It's possible to compile the query-only code without Boost, but useful things like estimating models require Boost.
 
 - Select the macros you want, listed in the previous section.  
 
@@ -86,10 +94,10 @@ pip install https://github.com/kpu/kenlm/archive/master.zip
 ### Basic Usage
 ```python
 import kenlm
-model = kenlm.LanguageModel('lm/test.arpa')
-sentence = 'this is a sentence .'
-print(model.score(sentence))
+model = kenlm.Model('lm/test.arpa')
+print(model.score('this is a sentence .', bos = True, eos = True))
 ```
+See [python/example.py](python/example.py) and [python/kenlm.pyx](python/kenlm.pyx) for more, including stateful APIs.  
 
 ---
 

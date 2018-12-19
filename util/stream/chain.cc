@@ -57,11 +57,6 @@ Chain &Chain::operator>>(const WriteAndRecycle &writer) {
   return *this;
 }
 
-Chain &Chain::operator>>(const PWriteAndRecycle &writer) {
-  threads_.push_back(new Thread(Complete(), writer));
-  return *this;
-}
-
 void Chain::Wait(bool release_memory) {
   if (queues_.empty()) {
     assert(threads_.empty());
@@ -125,8 +120,8 @@ Link::Link(const ChainPosition &position) : in_(NULL) {
 Link::~Link() {
   if (current_) {
     // Probably an exception unwinding.
-    std::cerr << "Last input should have been poison." << std::endl;
-    abort();
+    std::cerr << "Last input should have been poison.  The program should end soon with an error.  If it doesn't, there's a bug." << std::endl;
+//    abort();
   } else {
     if (!poisoned_) {
       // Poison is a block whose memory pointer is NULL.

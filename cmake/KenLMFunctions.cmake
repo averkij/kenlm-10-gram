@@ -15,9 +15,7 @@ function(AddExes)
     add_executable(${exe} ${exe}_main.cc ${AddExes_DEPENDS})
 
     # Link the executable against the supplied libraries
-    if(AddExes_LIBRARIES)
-      target_link_libraries(${exe} ${AddExes_LIBRARIES})
-    endif()
+    target_link_libraries(${exe} ${AddExes_LIBRARIES})
 
     # Group executables together
     set_target_properties(${exe} PROPERTIES FOLDER executables)
@@ -41,12 +39,18 @@ function(KenLMAddTest)
                  ${KenLMAddTest_TEST}.cc
                  ${KenLMAddTest_DEPENDS})
 
-  # Require the following compile flag
-  set_target_properties(${KenLMAddTest_TEST} PROPERTIES COMPILE_FLAGS -DBOOST_TEST_DYN_LINK)
-
-  if(KenLMAddTest_LIBRARIES)
-    target_link_libraries(${KenLMAddTest_TEST} ${KenLMAddTest_LIBRARIES})
+  if (Boost_USE_STATIC_LIBS)
+    set(DYNLINK_FLAGS)
+  else()
+    set(DYNLINK_FLAGS COMPILE_FLAGS -DBOOST_TEST_DYN_LINK)
   endif()
+
+  # Require the following compile flag
+  set_target_properties(${KenLMAddTest_TEST} PROPERTIES
+                        ${DYNLINK_FLAGS}
+                        RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/tests)
+
+  target_link_libraries(${KenLMAddTest_TEST} ${KenLMAddTest_LIBRARIES} ${TIMER_LINK})
 
   set(test_params "")
   if(KenLMAddTest_TEST_ARGS)
@@ -72,8 +76,7 @@ function(AddTests)
   cmake_parse_arguments(AddTests "" "" "${multiValueArgs}" ${ARGN})
 
   # Iterate through the Boost tests list
-  foreach(test ${KENLM_BOOST_TESTS_LIST})
-
+  foreach(test ${AddTests_TESTS})
     KenLMAddTest(TEST ${test}
                  DEPENDS ${AddTests_DEPENDS}
                  LIBRARIES ${AddTests_LIBRARIES}
