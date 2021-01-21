@@ -31,7 +31,7 @@ deploy:
   password:
     secure: Na8SLpAe//QjqtTJxV5lY8/xPGwlxqkRXN8X4r2QY+zOJZO1B8htYoYiKzGwSPk0PMdJIvGsPXnaJC72JKOYZmmazbbD8hwswMBco8TBnQuwIJ1GrBPmVn9C/vNItTEfT1mWT1X4Iq6BLES+BKIYESLznkg5FJSnjB4dzfAYWPECrH6cp8aFpB2EalJntawwaLoj1HzayY2XSjxnySqEHGMwxGFunZK3+ncDAuvJa4WLGkunvmxTvX/3fX9b+LsLFVqdWKtTnQ3cwWlcrSo+Fnisssq6ust3dtNx10N4rX5m1NPaFWcxyWzTqu1L77VrvBxSOOPm8K9pXr8va4eDjmnX+toS5G4joplwrjzvjO2kQ+PnD4i+QPPLto+X6br5FIxoiGjk0qVIgSxPP/V/+x4/0N8aezAVoULYbYpfFMHA0vJ03ZwmJRn9uq5Kah18cj/0gk1pwGRwfjg4VVUfVMw3ctM/CGaNXjscfHbakFtSwDbp6XuihRx2Kfe1t7fJTFHJLfYV8fckqwH+7b1o9evypIwSyEDsQ7zA1t0edwAKMFPRJtGO0OMfr3IIVFjFsFVQjkEkLt+bv6O+STtBtqcxxhoGp/iLH+/8HiP5NTCtOG3nf5PS6AAiVhMr9dX6kDJp9GlqV+vUyaReauNCaQ5vE+o5qZGjFJOUrW9u644=
   on:
-    repo: sih4sing5hong5/kenlm
+    repo: i3thuan5/kenlm
     branch: pypi
     condition: $TRAVIS_PYTHON_VERSION == '3.5'
   skip_cleanup: true
