@@ -3,11 +3,9 @@ include setup.py
 include lm/*.cc
 include lm/*.hh
 include python/*.cpp
+include python/*.hh
 include util/*.cc
 include util/*.hh
 include util/double-conversion/*.cc
 include util/double-conversion/*.h
-# graft util
-# graft lm
-# global-exclude *main.cc *test.cc
 include version.py
