@@ -58,11 +58,11 @@ ext_modules = [
 ]
 
 setup(
-    name='pypi-kenlm',
+    name='kenlm',
     ext_modules=ext_modules,
     include_package_data=True,
     author='Victor Chahuneau',
     author_email='victor@chahuneau.fr',
     url='https://github.com/sih4sing5hong5/kenlm',
-    version=1,
+    version=2,
 )
