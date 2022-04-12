@@ -2,7 +2,7 @@ from setuptools import setup, Extension
 import glob
 import platform
 import os
-from version import kenlm_version
+# from version import kenlm_version
 import sys
 import re
 
@@ -64,5 +64,5 @@ setup(
     author='Victor Chahuneau',
     author_email='victor@chahuneau.fr',
     url='https://github.com/sih4sing5hong5/kenlm',
-    version=kenlm_version,
+    version=1,
 )
